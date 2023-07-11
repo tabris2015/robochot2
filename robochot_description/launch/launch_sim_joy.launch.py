@@ -32,7 +32,7 @@ def generate_launch_description():
         )
     )
 
-    
+    # run spawner node
     spawn_entity = Node(
         package="gazebo_ros",
         executable="spawn_entity.py",
@@ -52,7 +52,25 @@ def generate_launch_description():
         executable="spawner",
         arguments=["joint_broad"],
     )
-    
+
+    teleop_twist_joy = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                os.path.join(
+                    get_package_share_directory("teleop_twist_joy"), 
+                    "launch", 
+                    "teleop-launch.py"
+                )
+            ]
+        ),
+        launch_arguments={"joy_config": "xbox", "joy_vel": "/diff_cont/cmd_vel_unstamped"}.items()
+    )
+    # diff_drive_spawner = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arg
+    # )
+    # launch
     return LaunchDescription(
         [
             rsp,
@@ -60,5 +78,6 @@ def generate_launch_description():
             spawn_entity,
             diff_drive_spawner,
             joint_broad_spawner,
+            teleop_twist_joy,
         ]
     )
