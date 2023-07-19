@@ -19,6 +19,27 @@ def generate_launch_description():
         launch_arguments={"use_sim_time": "true"}.items()
     )
 
+    joystick = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [
+                os.path.join(
+                    get_package_share_directory(package_name),
+                    "launch",
+                    "joystick.launch.py",
+                )
+            ]
+        ),
+        launch_arguments={"use_sim_time": "true"}.items()
+    )
+
+    twist_mux_params = os.path.join(get_package_share_directory(package_name), "config", "twist_mux.yaml")
+    twist_mux = Node(
+        package="twist_mux",
+        executable="twist_mux",
+        parameters=[twist_mux_params, {"use_sime_time": True}],
+        remappings=[("/cmd_vel_out", "/diff_cont/cmd_vel_unstamped")]
+    )
+
     # include gazebo
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -56,6 +77,8 @@ def generate_launch_description():
     return LaunchDescription(
         [
             rsp,
+            joystick,
+            twist_mux,
             gazebo,
             spawn_entity,
             diff_drive_spawner,
